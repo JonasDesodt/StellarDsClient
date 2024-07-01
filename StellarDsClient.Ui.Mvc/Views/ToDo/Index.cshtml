@@ -1,0 +1,77 @@
+﻿@using System.Web
+@using StellarDsClient.Ui.Mvc.Controllers
+@model ToDoIndexViewModel
+
+@{
+    ViewData["Title"] = @Model.List?.Title;
+}
+
+@if (Model.ErrorMessages is not null && Model.ErrorMessages.Count > 0)
+{
+    <partial name="_ErrorMessagesPartial" model="@Model.ErrorMessages" />
+}
+else if (Model.List is not null)
+{
+    <section class="content">
+        <h2>@ViewData["Title"]</h2>
+        
+        <partial name="_ListPartial" model="@Model.List" />
+
+        <div class="buttons">
+            <a asp-controller="List"
+               asp-action="Index"
+               asp-all-route-data="@(HttpUtility.ParseQueryString(ViewData[nameof(ListController)] as string ?? "").ToDictionary())"
+               class="button">
+                Overview
+            </a>
+
+            @if (@Model.List.OwnerId == User.GetId())
+            {
+                <a asp-action="Create" asp-route-listId="@Model.List.Id" class="button">Add todo</a>
+            }
+        </div>
+
+        <partial name="_FilterPartial" model="@Model.TaskIndexFilter" />
+
+        <section id="results">
+            <h3>@Model.PaginationPartialModel?.TotalItems result@(Model.PaginationPartialModel?.TotalItems != 1 ? "s" : ""):</h3>
+
+            <ul>
+                @foreach (var taskResult in Model.List.TaskResults)
+                {
+                    <li>
+                        <h4>@taskResult.Title</h4>
+                        
+                        <div class="data">
+                            <p>
+                            Status:
+                            @if (taskResult.Done)
+                            {
+                                <span class="done">Done</span>
+                            }
+                            else
+                            {
+                                <span>To do</span>
+                            }
+                            <p>Created: @taskResult.Created.ToShortDateString()</p>
+                        </div>
+
+                        <div class="buttons">
+                            @if (@Model.List.OwnerId == User.GetId())
+                            {
+                                <a asp-controller="ToDo" asp-action="Edit" asp-route-id="@taskResult.Id" asp-route-listId="@Model.List.Id" class="button">Edit</a>
+                            }
+                        </div>
+                    </li>
+                }
+            </ul>
+
+            <partial name="_PaginationPartial" model="@Model.PaginationPartialModel" />
+        </section>
+    </section>
+}
+
+@section Scripts
+{
+    <script src="~/js/filters.js"></script>
+}

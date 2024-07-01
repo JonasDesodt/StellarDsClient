@@ -1,0 +1,31 @@
+﻿@model HomeViewModel
+
+@{
+    ViewData["Title"] = "Home";
+}
+
+@if (Model.ErrorMessages is not null && Model.ErrorMessages.Count > 0)
+{
+    <partial name="_ErrorMessagesPartial" model="@Model.ErrorMessages" />
+}
+else
+{
+    <div>
+        <section>
+            <h2>Welcome, @User.Identity?.Name@(Model.List != null ? ". You last worked on:" : "")</h2>
+
+            @if (Model.List is not null)
+            {
+                <h3>@Model.List.Title</h3>
+
+                <partial name="_ListPartial" model="@Model.List"/>
+
+                <div class="buttons">
+                    <a asp-controller="ToDo" asp-action="Index" asp-route-listId="@Model.List.Id" class="button">View</a>
+
+                    <a asp-controller="List" asp-action="Edit" asp-route-id="@Model.List.Id" class="button">Edit</a>
+                </div>
+            }
+        </section>
+    </div>
+}
